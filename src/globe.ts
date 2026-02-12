@@ -54,7 +54,7 @@ function loadTextureWithFallback(
         const url = urls[attempt];
         attempt++;
         loader.load(url, onSuccess, undefined, () => {
-            console.warn(`Gagal load: ${url}, mencoba URL lain...`);
+            console.warn(`Failed to load: ${url}, trying next URL...`);
             tryNext();
         });
     }
@@ -136,7 +136,7 @@ export function createGlobeScene(
     // Timeout: force complete after 10s
     setTimeout(() => {
         if (!progressCompleted) {
-            console.warn('Timeout: loading selesai paksa');
+            console.warn('Timeout: forced completion');
             progressCompleted = true;
             onProgress(100);
         }

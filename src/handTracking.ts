@@ -169,7 +169,7 @@ export function createHandTracker(
 
     async function start() {
         try {
-            onStatusChange('loading', 'Memuat model hand tracking...');
+            onStatusChange('loading', 'Loading hand tracking model...');
 
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: {
@@ -191,10 +191,10 @@ export function createHandTracker(
             });
 
             await mediaCamera.start();
-            onStatusChange('active', 'Hand tracking aktif');
+            onStatusChange('active', 'Hand tracking active');
         } catch (err) {
             console.error('Hand tracking error:', err);
-            onStatusChange('error', 'Akses kamera ditolak');
+            onStatusChange('error', 'Camera access denied');
         }
     }
 

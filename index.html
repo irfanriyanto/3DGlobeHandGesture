@@ -5,8 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description"
-    content="Globe 3D Interaktif yang dikontrol dengan gerakan tangan via webcam. Putar, zoom, dan jelajahi Bumi di lingkungan galaksi yang menakjubkan." />
-  <title>3D Globe – Kontrol Gerakan Tangan</title>
+    content="Interactive 3D Globe controlled by hand gestures via webcam. Rotate, zoom, and explore Earth in a stunning galaxy environment." />
+  <title>3D Globe – Hand Gesture Control</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -24,8 +24,10 @@
     <div id="loading-screen">
       <div class="loader-content">
         <div class="loader-spinner"></div>
-        <h1 class="loader-title">3D Globe</h1>
-        <p class="loader-subtitle" id="loader-subtitle">Memuat tekstur bumi...</p>
+        <div class="loader-text">
+          <h1 class="loader-title">3D Globe</h1>
+          <p class="loader-subtitle" id="loader-subtitle">Initializing...</p>
+        </div>
         <div class="loader-bar">
           <div class="loader-bar-fill" id="loader-progress"></div>
         </div>
@@ -44,15 +46,15 @@
       <div class="hud-instructions" id="hud-instructions">
         <div class="instruction-item">
           <span class="instruction-icon">✋</span>
-          <span>Tangan terbuka untuk memutar</span>
+          <span>Open hand to rotate</span>
         </div>
         <div class="instruction-item">
           <span class="instruction-icon">✌️</span>
-          <span>Dua jari untuk zoom in/out</span>
+          <span>Two fingers to zoom</span>
         </div>
         <div class="instruction-item">
           <span class="instruction-icon">✊</span>
-          <span>Kepal untuk berhenti</span>
+          <span>Fist to stop</span>
         </div>
       </div>
 
@@ -60,7 +62,7 @@
       <div class="camera-container" id="camera-container">
         <div class="camera-label">
           <span class="camera-dot"></span>
-          LIVE
+          <span>Live</span>
         </div>
         <video id="webcam-video" autoplay playsinline></video>
         <canvas id="hand-overlay-canvas"></canvas>

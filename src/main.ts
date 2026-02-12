@@ -40,12 +40,12 @@ function initGlobe() {
     const pct = Math.min(progress, 100);
     loaderProgress.style.width = `${pct}%`;
 
-    if (pct < 50) loaderSubtitle.textContent = 'Memuat tekstur bumi...';
-    else if (pct < 75) loaderSubtitle.textContent = 'Memuat detail permukaan...';
-    else if (pct < 100) loaderSubtitle.textContent = 'Memuat lapisan awan...';
+    if (pct < 50) loaderSubtitle.textContent = 'Loading Earth textures...';
+    else if (pct < 75) loaderSubtitle.textContent = 'Loading surface details...';
+    else if (pct < 100) loaderSubtitle.textContent = 'Loading cloud layers...';
 
     if (progress >= 100) {
-      loaderSubtitle.textContent = 'Siap!';
+      loaderSubtitle.textContent = 'Ready!';
       setTimeout(() => {
         showGlobe();
         initHandTracking(controls);
@@ -78,7 +78,7 @@ async function initHandTracking(controls: GlobeControls) {
     requestAnimationFrame(gestureControlLoop);
   } catch (err) {
     console.error('Hand tracking failed:', err);
-    statusText.textContent = 'Hand tracking gagal';
+    statusText.textContent = 'Hand tracking failed';
     statusDot.className = 'status-dot error';
   }
 }
