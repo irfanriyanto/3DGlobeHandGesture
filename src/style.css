@@ -4,7 +4,9 @@
    ============================================================ */
 
 :root {
-  --font-primary: 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-primary: var(--font-body);
   --color-bg: #000010;
   --color-accent: #6D7993;
   --color-accent-glow: rgba(109, 121, 147, 0.4);
@@ -111,6 +113,7 @@ body {
 }
 
 .loader-title {
+  font-family: var(--font-heading);
   font-size: 2.5rem;
   font-weight: 700;
   color: #6D7993;
@@ -183,8 +186,9 @@ body {
 }
 
 .hud-text {
+  font-family: var(--font-heading);
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #6D7993;
@@ -296,6 +300,7 @@ body {
 }
 
 .camera-label {
+  font-family: var(--font-heading);
   position: absolute;
   top: 10px;
   left: 10px;
