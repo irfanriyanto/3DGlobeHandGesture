@@ -230,11 +230,11 @@ body {
 }
 
 .instruction-icon {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
   color: var(--color-accent);
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 /* Status */
