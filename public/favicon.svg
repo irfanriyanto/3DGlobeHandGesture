@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <radialGradient id="g" cx="40%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#4fc3f7"/>
+      <stop offset="50%" stop-color="#1565c0"/>
+      <stop offset="100%" stop-color="#0d47a1"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="80%" stop-color="transparent"/>
+      <stop offset="100%" stop-color="#4fc3f755"/>
+    </radialGradient>
+  </defs>
+  <circle cx="50" cy="50" r="48" fill="url(#g)"/>
+  <circle cx="50" cy="50" r="49" fill="none" stroke="url(#glow)" stroke-width="2"/>
+  <!-- Simplified continents -->
+  <ellipse cx="50" cy="50" rx="47" ry="47" fill="none" stroke="#2e7d3266" stroke-width="1"/>
+  <path d="M30 25 Q35 20 42 22 Q48 24 45 30 Q42 36 35 35 Q28 33 30 25Z" fill="#388e3c88"/>
+  <path d="M52 18 Q58 15 65 18 Q72 22 70 30 Q68 38 60 40 Q52 38 50 32 Q48 25 52 18Z" fill="#388e3c88"/>
+  <path d="M20 42 Q28 38 35 42 Q40 48 38 55 Q34 62 25 60 Q18 55 20 42Z" fill="#388e3c88"/>
+  <path d="M55 45 Q62 42 68 46 Q72 52 70 58 Q66 62 58 60 Q52 56 55 45Z" fill="#388e3c88"/>
+  <path d="M30 65 Q38 60 45 65 Q48 72 42 78 Q35 80 30 75 Q27 70 30 65Z" fill="#388e3c88"/>
+  <path d="M58 68 Q65 64 72 70 Q75 76 70 80 Q62 82 58 76 Q56 72 58 68Z" fill="#388e3c88"/>
+</svg>

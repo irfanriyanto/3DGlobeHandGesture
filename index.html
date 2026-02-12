@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Globe 3D Interaktif yang dikontrol dengan gerakan tangan via webcam. Putar, zoom, dan jelajahi Bumi di lingkungan galaksi yang menakjubkan." />
+  <title>3D Globe – Kontrol Gerakan Tangan</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+  <div id="app">
+    <!-- Three.js Canvas -->
+    <canvas id="globe-canvas"></canvas>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+      <div class="loader-content">
+        <div class="loader-spinner"></div>
+        <h1 class="loader-title">3D Globe</h1>
+        <p class="loader-subtitle" id="loader-subtitle">Memuat tekstur bumi...</p>
+        <div class="loader-bar">
+          <div class="loader-bar-fill" id="loader-progress"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HUD Overlay -->
+    <div id="hud-overlay">
+      <!-- Title -->
+      <div class="hud-title">
+        <span class="hud-icon">🌍</span>
+        <span class="hud-text">Interactive Globe</span>
+      </div>
+
+      <!-- Gesture Instructions -->
+      <div class="hud-instructions" id="hud-instructions">
+        <div class="instruction-item">
+          <span class="instruction-icon">✋</span>
+          <span>Tangan terbuka untuk memutar</span>
+        </div>
+        <div class="instruction-item">
+          <span class="instruction-icon">✌️</span>
+          <span>Dua jari untuk zoom in/out</span>
+        </div>
+        <div class="instruction-item">
+          <span class="instruction-icon">✊</span>
+          <span>Kepal untuk berhenti</span>
+        </div>
+      </div>
+
+      <!-- Camera Preview -->
+      <div class="camera-container" id="camera-container">
+        <div class="camera-label">
+          <span class="camera-dot"></span>
+          LIVE
+        </div>
+        <video id="webcam-video" autoplay playsinline></video>
+        <canvas id="hand-overlay-canvas"></canvas>
+      </div>
+
+      <!-- Status -->
+      <div class="hud-status" id="hud-status">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text">Menghubungkan kamera...</span>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>
