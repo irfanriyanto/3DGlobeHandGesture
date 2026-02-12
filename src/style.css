@@ -230,11 +230,9 @@ body {
 }
 
 .instruction-icon {
-  width: 24px;
-  height: 24px;
+  font-size: 1.2rem;
   flex-shrink: 0;
-  color: var(--color-accent);
-  opacity: 0.9;
+  filter: grayscale(1) brightness(1.8) sepia(1) hue-rotate(160deg) saturate(3);
 }
 
 /* Status */
