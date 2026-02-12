@@ -32,7 +32,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   overflow: hidden;
@@ -104,7 +105,9 @@ html, body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loader-title {
@@ -196,8 +199,8 @@ html, body {
 /* Instructions */
 .hud-instructions {
   position: absolute;
-  top: 28px;
-  right: 32px;
+  top: 90px;
+  left: 32px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -227,7 +230,11 @@ html, body {
 }
 
 .instruction-icon {
-  font-size: 1.1rem;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--color-accent);
+  opacity: 0.85;
 }
 
 /* Status */
@@ -347,6 +354,7 @@ html, body {
     opacity: 0;
     transform: translateY(-16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -358,6 +366,7 @@ html, body {
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -365,8 +374,15 @@ html, body {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
 }
 
 /* ============================================================
@@ -381,8 +397,8 @@ html, body {
   }
 
   .hud-instructions {
-    top: 16px;
-    right: 16px;
+    top: 70px;
+    left: 16px;
   }
 
   .instruction-item {
