@@ -188,9 +188,8 @@ body {
 .hud-text {
   font-family: var(--font-heading);
   font-size: 1rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   color: #6D7993;
 }
 
