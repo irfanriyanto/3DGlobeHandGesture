@@ -121,8 +121,8 @@ function gestureControlLoop() {
       break;
     }
 
-    case 'peace': {
-      // ✌️ DUA JARI → ZOOM IN/OUT
+    case 'pinch': {
+      // 🤏 PINCH → ZOOM IN/OUT
       globeControls.setAutoRotate(false);
 
       if (palm && prevPalmY !== null) {

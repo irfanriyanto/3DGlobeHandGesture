@@ -7,7 +7,7 @@
 import { Hands, Results, NormalizedLandmark } from '@mediapipe/hands';
 import { Camera } from '@mediapipe/camera_utils';
 
-export type GestureType = 'open' | 'peace' | 'fist' | 'none';
+export type GestureType = 'open' | 'pinch' | 'fist' | 'none';
 
 export interface HandState {
     gesture: GestureType;
@@ -88,6 +88,7 @@ export function createHandTracker(
         const wrist = landmarks[0];
         const thumbTip = landmarks[4];
         const thumbIp = landmarks[3];
+        const indexTip = landmarks[8];
 
         // Check each finger
         const indexUp = isFingerExtended(landmarks, 8, 6);
@@ -100,9 +101,14 @@ export function createHandTracker(
 
         const fingersUp = [indexUp, middleUp, ringUp, pinkyUp].filter(Boolean).length;
 
-        // ✌️ PEACE: index + middle extended, ring + pinky curled
-        if (indexUp && middleUp && !ringUp && !pinkyUp) {
-            return 'peace';
+        // 🤏 PINCH: thumb tip and index tip are close together
+        const pinchDist = Math.hypot(
+            thumbTip.x - indexTip.x,
+            thumbTip.y - indexTip.y,
+            (thumbTip.z ?? 0) - (indexTip.z ?? 0)
+        );
+        if (pinchDist < 0.07) {
+            return 'pinch';
         }
 
         // ✊ FIST: 0-1 fingers extended, thumb also down
