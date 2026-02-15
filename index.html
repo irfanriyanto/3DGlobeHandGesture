@@ -17,7 +17,12 @@
 
 <body>
   <div id="app">
-    <!-- Three.js Canvas -->
+    <!-- Full-screen Webcam Background -->
+    <video id="webcam-video" autoplay playsinline></video>
+    <canvas id="hand-overlay-canvas"></canvas>
+    <div id="camera-overlay"></div>
+
+    <!-- Three.js Canvas (transparent) -->
     <canvas id="globe-canvas"></canvas>
 
     <!-- Loading Screen -->
@@ -58,20 +63,16 @@
         </div>
       </div>
 
-      <!-- Camera Preview -->
-      <div class="camera-container" id="camera-container">
-        <div class="camera-label">
-          <span class="camera-dot"></span>
-          <span>Live</span>
-        </div>
-        <video id="webcam-video" autoplay playsinline></video>
-        <canvas id="hand-overlay-canvas"></canvas>
+      <!-- Live indicator -->
+      <div class="live-badge" id="live-badge">
+        <span class="camera-dot"></span>
+        <span>Live</span>
       </div>
 
       <!-- Status -->
       <div class="hud-status" id="hud-status">
         <span class="status-dot" id="status-dot"></span>
-        <span id="status-text">Menghubungkan kamera...</span>
+        <span id="status-text">Connecting camera...</span>
       </div>
     </div>
   </div>

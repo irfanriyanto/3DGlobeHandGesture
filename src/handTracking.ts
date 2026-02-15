@@ -134,8 +134,8 @@ export function createHandTracker(
         ];
 
         // Lines
-        ctx.strokeStyle = 'rgba(79, 195, 247, 0.5)';
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = 'rgba(109, 121, 147, 0.6)';
+        ctx.lineWidth = 2.5;
         connections.forEach(([a, b]) => {
             ctx.beginPath();
             ctx.moveTo(landmarks[a].x * w, landmarks[a].y * h);
@@ -148,12 +148,12 @@ export function createHandTracker(
             const x = lm.x * w;
             const y = lm.y * h;
             const isTip = [4, 8, 12, 16, 20].includes(i);
-            const r = isTip ? 3.5 : 2;
+            const r = isTip ? 5 : 3;
 
             // Glow
             const grad = ctx.createRadialGradient(x, y, 0, x, y, r * 2.5);
-            grad.addColorStop(0, 'rgba(79, 195, 247, 0.6)');
-            grad.addColorStop(1, 'rgba(79, 195, 247, 0)');
+            grad.addColorStop(0, 'rgba(109, 121, 147, 0.7)');
+            grad.addColorStop(1, 'rgba(109, 121, 147, 0)');
             ctx.beginPath();
             ctx.arc(x, y, r * 2.5, 0, Math.PI * 2);
             ctx.fillStyle = grad;
@@ -162,7 +162,7 @@ export function createHandTracker(
             // Dot
             ctx.beginPath();
             ctx.arc(x, y, r, 0, Math.PI * 2);
-            ctx.fillStyle = isTip ? '#4fc3f7' : '#b388ff';
+            ctx.fillStyle = isTip ? '#8a9bb5' : '#6D7993';
             ctx.fill();
         });
     }

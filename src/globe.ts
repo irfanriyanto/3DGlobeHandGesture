@@ -70,16 +70,17 @@ export function createGlobeScene(
     const renderer = new THREE.WebGLRenderer({
         canvas,
         antialias: true,
-        alpha: false,
+        alpha: true,
         powerPreference: 'high-performance',
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.NoToneMapping;
+    renderer.setClearColor(0x000000, 0); // Fully transparent
 
     // ========== Scene ==========
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000008);
+    // No scene.background – transparent to show webcam behind
 
     // ========== Camera ==========
     const camera = new THREE.PerspectiveCamera(
@@ -220,8 +221,7 @@ export function createGlobeScene(
     );
 
 
-    // ========== Stars ==========
-    createStarfield(scene);
+    // Stars removed – webcam is the background now
 
     // ========== State ==========
     let autoRotate = true;
@@ -289,79 +289,4 @@ export function createGlobeScene(
     }
 
     return { controls, scene, camera, dispose };
-}
-
-// ========== Star Field ==========
-function createStarfield(scene: THREE.Scene) {
-    const starsCount = 8000;
-    const positions = new Float32Array(starsCount * 3);
-    const sizes = new Float32Array(starsCount);
-    const colors = new Float32Array(starsCount * 3);
-
-    for (let i = 0; i < starsCount; i++) {
-        const i3 = i * 3;
-        const radius = 200 + Math.random() * 800;
-        const theta = Math.random() * Math.PI * 2;
-        const phi = Math.acos(2 * Math.random() - 1);
-
-        positions[i3] = radius * Math.sin(phi) * Math.cos(theta);
-        positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-        positions[i3 + 2] = radius * Math.cos(phi);
-
-        sizes[i] = Math.random() * 1.8 + 0.3;
-
-        // Mostly white with slight variations
-        const temp = Math.random();
-        if (temp < 0.7) {
-            // White
-            colors[i3] = 0.95 + Math.random() * 0.05;
-            colors[i3 + 1] = 0.95 + Math.random() * 0.05;
-            colors[i3 + 2] = 1.0;
-        } else if (temp < 0.85) {
-            // Slightly blue
-            colors[i3] = 0.8;
-            colors[i3 + 1] = 0.85;
-            colors[i3 + 2] = 1.0;
-        } else {
-            // Slightly warm
-            colors[i3] = 1.0;
-            colors[i3 + 1] = 0.9;
-            colors[i3 + 2] = 0.75;
-        }
-    }
-
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-    const material = new THREE.ShaderMaterial({
-        vertexShader: `
-      attribute float size;
-      varying vec3 vColor;
-      void main() {
-        vColor = color;
-        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-        gl_PointSize = size * (200.0 / -mvPosition.z);
-        gl_Position = projectionMatrix * mvPosition;
-      }
-    `,
-        fragmentShader: `
-      varying vec3 vColor;
-      void main() {
-        vec2 center = gl_PointCoord - vec2(0.5);
-        float dist = length(center);
-        float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
-        alpha *= alpha;
-        gl_FragColor = vec4(vColor, alpha * 0.9);
-      }
-    `,
-        transparent: true,
-        vertexColors: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-    });
-
-    const stars = new THREE.Points(geometry, material);
-    scene.add(stars);
 }
