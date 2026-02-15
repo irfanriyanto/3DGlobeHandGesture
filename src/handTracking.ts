@@ -14,6 +14,10 @@ export interface HandState {
     palmCenter: { x: number; y: number } | null;
     landmarks: NormalizedLandmark[] | null;
     pinchDistance: number; // 0 = fully pinched, 1 = fully open
+    // Second hand
+    secondGesture: GestureType;
+    secondPalmCenter: { x: number; y: number } | null;
+    handCount: number;
 }
 
 export interface HandTracker {
@@ -32,6 +36,9 @@ export function createHandTracker(
         palmCenter: null,
         landmarks: null,
         pinchDistance: 1,
+        secondGesture: 'none',
+        secondPalmCenter: null,
+        handCount: 0,
     };
 
     let mediaCamera: Camera | null = null;
@@ -61,19 +68,32 @@ export function createHandTracker(
         ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 
         if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+            state.handCount = results.multiHandLandmarks.length;
+
             // Draw ALL detected hands
             for (const handLandmarks of results.multiHandLandmarks) {
                 drawHandVisualization(ctx, handLandmarks, overlayCanvas.width, overlayCanvas.height);
             }
 
-            // Use first hand for gesture control
+            // Helper: get palm center from landmarks
+            function getPalmCenter(lm: NormalizedLandmark[]) {
+                const palmIndices = [0, 5, 9, 13, 17];
+                let cx = 0, cy = 0;
+                palmIndices.forEach((idx) => {
+                    cx += lm[idx].x;
+                    cy += lm[idx].y;
+                });
+                return { x: cx / palmIndices.length, y: cy / palmIndices.length };
+            }
+
+            // First hand: gesture + palm
             const landmarks = results.multiHandLandmarks[0];
             state.landmarks = landmarks;
 
             const detected = detectGesture(landmarks);
             state.pinchDistance = detected.pinchDist;
 
-            // Gesture smoothing: require consecutive frames to confirm switch
+            // Gesture smoothing
             if (detected.gesture === gestureBuffer) {
                 gestureCount++;
             } else {
@@ -84,22 +104,26 @@ export function createHandTracker(
                 state.gesture = gestureBuffer;
             }
 
-            // Palm center
-            const palmIndices = [0, 5, 9, 13, 17];
-            let cx = 0, cy = 0;
-            palmIndices.forEach((idx) => {
-                cx += landmarks[idx].x;
-                cy += landmarks[idx].y;
-            });
-            state.palmCenter = {
-                x: cx / palmIndices.length,
-                y: cy / palmIndices.length,
-            };
+            state.palmCenter = getPalmCenter(landmarks);
+
+            // Second hand (if present)
+            if (results.multiHandLandmarks.length >= 2) {
+                const landmarks2 = results.multiHandLandmarks[1];
+                const detected2 = detectGesture(landmarks2);
+                state.secondGesture = detected2.gesture;
+                state.secondPalmCenter = getPalmCenter(landmarks2);
+            } else {
+                state.secondGesture = 'none';
+                state.secondPalmCenter = null;
+            }
         } else {
             state.gesture = 'none';
             state.palmCenter = null;
             state.landmarks = null;
             state.pinchDistance = 1;
+            state.secondGesture = 'none';
+            state.secondPalmCenter = null;
+            state.handCount = 0;
         }
     }
 

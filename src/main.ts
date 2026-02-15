@@ -94,6 +94,8 @@ function gestureControlLoop() {
 
   const state = handTracker.getState();
   const palm = state.palmCenter;
+  const palm2 = state.secondPalmCenter;
+  const bothOpen = state.handCount >= 2 && state.gesture === 'open' && state.secondGesture === 'open';
 
   // Reset pinch tracking when gesture changes (prevents zoom spike during transitions)
   if (state.gesture !== prevGesture) {
@@ -101,101 +103,137 @@ function gestureControlLoop() {
     prevGesture = state.gesture;
   }
 
-  switch (state.gesture) {
-    case 'open': {
-      // ✋ OPEN HAND → ROTATE GLOBE
-      globeControls.setAutoRotate(false);
-      prevPinchDist = null; // reset pinch tracking
+  // ========== TWO HANDS OPEN → GRAB & MOVE GLOBE ==========
+  if (bothOpen && palm && palm2) {
+    globeControls.setAutoRotate(false);
+    prevPinchDist = null;
 
-      if (palm && prevPalmX !== null && prevPalmY !== null) {
-        const dx = palm.x - prevPalmX;
-        const dy = palm.y - prevPalmY;
+    // Midpoint between two palms
+    const midX = (palm.x + palm2.x) / 2;
+    const midY = (palm.y + palm2.y) / 2;
 
-        if (Math.abs(dx) > 0.002 || Math.abs(dy) > 0.002) {
-          smoothRotY += (-dx * 5 - smoothRotY) * 0.4;
-          smoothRotX += (dy * 5 - smoothRotX) * 0.4;
-          globeControls.rotateY(smoothRotY);
-          globeControls.rotateX(smoothRotX);
-        } else {
-          smoothRotX *= 0.8;
-          smoothRotY *= 0.8;
-        }
+    // Move globe to midpoint position
+    globeControls.setPosition(midX, midY);
+
+    // Also allow rotation based on first hand movement
+    if (prevPalmX !== null && prevPalmY !== null) {
+      const dx = midX - prevPalmX;
+      const dy = midY - prevPalmY;
+      if (Math.abs(dx) > 0.002 || Math.abs(dy) > 0.002) {
+        smoothRotY += (-dx * 3 - smoothRotY) * 0.3;
+        smoothRotX += (dy * 3 - smoothRotX) * 0.3;
+        globeControls.rotateY(smoothRotY);
+        globeControls.rotateX(smoothRotX);
       }
-
-      if (palm) {
-        prevPalmX = palm.x;
-        prevPalmY = palm.y;
-      }
-      isGestureActive = true;
-      break;
     }
+    prevPalmX = midX;
+    prevPalmY = midY;
+    isGestureActive = true;
 
-    case 'pinch': {
-      // 🤏 PINCH → ZOOM using pinch distance change
-      globeControls.setAutoRotate(false);
+  } else {
+    // ========== SINGLE HAND GESTURES ==========
+    // Return globe to center when not grabbing with 2 hands
+    globeControls.resetPosition();
 
-      const currentPinchDist = state.pinchDistance;
-      if (prevPinchDist !== null) {
-        const delta = currentPinchDist - prevPinchDist;
-        // Clamp delta to prevent sudden jumps during gesture transitions
-        const clampedDelta = Math.max(-0.08, Math.min(0.08, delta));
-        // Fingers closing (delta < 0) = zoom in (globe bigger)
-        // Fingers spreading (delta > 0) = zoom out (globe smaller)
-        if (Math.abs(clampedDelta) > 0.005) {
-          const currentZoom = globeControls.getZoom();
-          globeControls.setZoom(currentZoom - clampedDelta * 15);
+    switch (state.gesture) {
+      case 'open': {
+        // ✋ OPEN HAND → ROTATE GLOBE
+        globeControls.setAutoRotate(false);
+        prevPinchDist = null;
+
+        if (palm && prevPalmX !== null && prevPalmY !== null) {
+          const dx = palm.x - prevPalmX;
+          const dy = palm.y - prevPalmY;
+
+          if (Math.abs(dx) > 0.002 || Math.abs(dy) > 0.002) {
+            smoothRotY += (-dx * 5 - smoothRotY) * 0.4;
+            smoothRotX += (dy * 5 - smoothRotX) * 0.4;
+            globeControls.rotateY(smoothRotY);
+            globeControls.rotateX(smoothRotX);
+          } else {
+            smoothRotX *= 0.8;
+            smoothRotY *= 0.8;
+          }
         }
-      }
-      prevPinchDist = currentPinchDist;
 
-      if (palm) {
-        prevPalmX = palm.x;
-        prevPalmY = palm.y;
-      }
-      isGestureActive = true;
-      break;
-    }
-
-    case 'fist': {
-      // ✊ FIST → STOP, AUTO ROTATE
-      globeControls.setAutoRotate(true);
-      smoothRotX = 0;
-      smoothRotY = 0;
-      prevPalmX = null;
-      prevPalmY = null;
-      prevPinchDist = null;
-      isGestureActive = false;
-      break;
-    }
-
-    case 'none':
-    default: {
-      if (isGestureActive) {
-        smoothRotX *= 0.85;
-        smoothRotY *= 0.85;
-        if (Math.abs(smoothRotX) < 0.0001 && Math.abs(smoothRotY) < 0.0001) {
-          globeControls.setAutoRotate(true);
-          isGestureActive = false;
+        if (palm) {
+          prevPalmX = palm.x;
+          prevPalmY = palm.y;
         }
-      } else {
+        isGestureActive = true;
+        break;
+      }
+
+      case 'pinch': {
+        // 🤏 PINCH → ZOOM using pinch distance change
+        globeControls.setAutoRotate(false);
+
+        const currentPinchDist = state.pinchDistance;
+        if (prevPinchDist !== null) {
+          const delta = currentPinchDist - prevPinchDist;
+          const clampedDelta = Math.max(-0.08, Math.min(0.08, delta));
+          if (Math.abs(clampedDelta) > 0.005) {
+            const currentZoom = globeControls.getZoom();
+            globeControls.setZoom(currentZoom - clampedDelta * 15);
+          }
+        }
+        prevPinchDist = currentPinchDist;
+
+        if (palm) {
+          prevPalmX = palm.x;
+          prevPalmY = palm.y;
+        }
+        isGestureActive = true;
+        break;
+      }
+
+      case 'fist': {
+        // ✊ FIST → STOP, AUTO ROTATE
         globeControls.setAutoRotate(true);
+        smoothRotX = 0;
+        smoothRotY = 0;
+        prevPalmX = null;
+        prevPalmY = null;
+        prevPinchDist = null;
+        isGestureActive = false;
+        break;
       }
-      prevPalmX = null;
-      prevPalmY = null;
-      prevPinchDist = null;
-      break;
+
+      case 'none':
+      default: {
+        if (isGestureActive) {
+          smoothRotX *= 0.85;
+          smoothRotY *= 0.85;
+          if (Math.abs(smoothRotX) < 0.0001 && Math.abs(smoothRotY) < 0.0001) {
+            globeControls.setAutoRotate(true);
+            isGestureActive = false;
+          }
+        } else {
+          globeControls.setAutoRotate(true);
+        }
+        prevPalmX = null;
+        prevPalmY = null;
+        prevPinchDist = null;
+        break;
+      }
     }
   }
 
-  // Show detected gesture + pinch distance on status (debug)
+  // Show detected gesture on status
   const pd = state.pinchDistance.toFixed(2);
-  const gestureLabels: Record<string, string> = {
-    open: `✋ Open hand – Rotating`,
-    pinch: `🤏 Pinch (${pd}) – Zooming`,
-    fist: `✊ Fist – Stopped`,
-    none: `Waiting... (pinch: ${pd})`,
-  };
-  statusText.textContent = gestureLabels[state.gesture] || 'Hand tracking active';
+  let statusLabel: string;
+  if (bothOpen) {
+    statusLabel = `🤲 Two hands – Grabbing globe`;
+  } else {
+    const gestureLabels: Record<string, string> = {
+      open: `✋ Open hand – Rotating`,
+      pinch: `🤏 Pinch (${pd}) – Zooming`,
+      fist: `✊ Fist – Stopped`,
+      none: `Waiting... (${state.handCount} hand${state.handCount !== 1 ? 's' : ''})`,
+    };
+    statusLabel = gestureLabels[state.gesture] || 'Hand tracking active';
+  }
+  statusText.textContent = statusLabel;
 
   requestAnimationFrame(gestureControlLoop);
 }

@@ -33,6 +33,8 @@ export interface GlobeControls {
     setZoom: (distance: number) => void;
     getZoom: () => number;
     setAutoRotate: (enabled: boolean) => void;
+    setPosition: (x: number, y: number) => void;
+    resetPosition: () => void;
 }
 
 /**
@@ -228,6 +230,8 @@ export function createGlobeScene(
     let targetZoom = 3.5;
     let currentZoom = 3.5;
     let disposed = false;
+    let targetX = 0, targetY = 0;
+    let currentX = 0, currentY = 0;
 
     // ========== Animation Loop ==========
     function animate() {
@@ -242,6 +246,12 @@ export function createGlobeScene(
 
         currentZoom += (targetZoom - currentZoom) * 0.08;
         camera.position.z = currentZoom;
+
+        // Smooth position movement
+        currentX += (targetX - currentX) * 0.12;
+        currentY += (targetY - currentY) * 0.12;
+        globeGroup.position.x = currentX;
+        globeGroup.position.y = currentY;
 
         renderer.render(scene, camera);
     }
@@ -275,6 +285,17 @@ export function createGlobeScene(
         },
         setAutoRotate(enabled: boolean) {
             autoRotate = enabled;
+        },
+        setPosition(x: number, y: number) {
+            // Convert normalized (0-1) to 3D space coords
+            // Webcam coords: 0,0 = top-left; 0.5,0.5 = center
+            // Mirror X because webcam is mirrored
+            targetX = -(x - 0.5) * 5;
+            targetY = -(y - 0.5) * 5;
+        },
+        resetPosition() {
+            targetX = 0;
+            targetY = 0;
         },
     };
 
