@@ -132,8 +132,6 @@ function gestureControlLoop() {
 
   } else {
     // ========== SINGLE HAND GESTURES ==========
-    // Return globe to center when not grabbing with 2 hands
-    globeControls.resetPosition();
 
     switch (state.gesture) {
       case 'open': {
