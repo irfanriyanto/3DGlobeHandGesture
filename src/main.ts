@@ -130,11 +130,11 @@ function gestureControlLoop() {
       const currentPinchDist = state.pinchDistance;
       if (prevPinchDist !== null) {
         const delta = currentPinchDist - prevPinchDist;
-        // Fingers spreading apart (delta > 0) = zoom out (increase distance)
-        // Fingers closing (delta < 0) = zoom in (decrease distance)
+        // Fingers closing (delta < 0) = zoom in (globe bigger)
+        // Fingers spreading (delta > 0) = zoom out (globe smaller)
         if (Math.abs(delta) > 0.005) {
           const currentZoom = globeControls.getZoom();
-          globeControls.setZoom(currentZoom + delta * 15);
+          globeControls.setZoom(currentZoom - delta * 15);
         }
       }
       prevPinchDist = currentPinchDist;
