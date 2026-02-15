@@ -29,6 +29,7 @@ let isGestureActive = false;
 let smoothRotX = 0;
 let smoothRotY = 0;
 let prevPinchDist: number | null = null;
+let prevGesture: string = 'none';
 
 function showGlobe() {
   loadingScreen.classList.add('hidden');
@@ -94,6 +95,12 @@ function gestureControlLoop() {
   const state = handTracker.getState();
   const palm = state.palmCenter;
 
+  // Reset pinch tracking when gesture changes (prevents zoom spike during transitions)
+  if (state.gesture !== prevGesture) {
+    prevPinchDist = null;
+    prevGesture = state.gesture;
+  }
+
   switch (state.gesture) {
     case 'open': {
       // ✋ OPEN HAND → ROTATE GLOBE
@@ -130,11 +137,13 @@ function gestureControlLoop() {
       const currentPinchDist = state.pinchDistance;
       if (prevPinchDist !== null) {
         const delta = currentPinchDist - prevPinchDist;
+        // Clamp delta to prevent sudden jumps during gesture transitions
+        const clampedDelta = Math.max(-0.08, Math.min(0.08, delta));
         // Fingers closing (delta < 0) = zoom in (globe bigger)
         // Fingers spreading (delta > 0) = zoom out (globe smaller)
-        if (Math.abs(delta) > 0.005) {
+        if (Math.abs(clampedDelta) > 0.005) {
           const currentZoom = globeControls.getZoom();
-          globeControls.setZoom(currentZoom - delta * 15);
+          globeControls.setZoom(currentZoom - clampedDelta * 15);
         }
       }
       prevPinchDist = currentPinchDist;

@@ -38,7 +38,7 @@ export function createHandTracker(
     // Gesture smoothing: require N consecutive frames of the same gesture
     let gestureBuffer: GestureType = 'none';
     let gestureCount = 0;
-    const GESTURE_THRESHOLD = 2; // frames required to confirm gesture switch
+    const GESTURE_THRESHOLD = 1; // respond immediately to gesture changes
     const ctx = overlayCanvas.getContext('2d')!;
 
     const hands = new Hands({
