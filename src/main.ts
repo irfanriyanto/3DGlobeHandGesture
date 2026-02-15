@@ -112,14 +112,16 @@ function gestureControlLoop() {
     const midX = (palm.x + palm2.x) / 2;
     const midY = (palm.y + palm2.y) / 2;
 
-    // Move globe to midpoint position
-    globeControls.setPosition(midX, midY);
-
-    // Also allow rotation based on first hand movement
+    // Move globe by delta (not absolute) — prevents jump on entry
     if (prevPalmX !== null && prevPalmY !== null) {
       const dx = midX - prevPalmX;
       const dy = midY - prevPalmY;
+
+      // Move position
       if (Math.abs(dx) > 0.002 || Math.abs(dy) > 0.002) {
+        globeControls.movePosition(dx, dy);
+
+        // Also rotate slightly while moving
         smoothRotY += (-dx * 3 - smoothRotY) * 0.3;
         smoothRotX += (dy * 3 - smoothRotX) * 0.3;
         globeControls.rotateY(smoothRotY);

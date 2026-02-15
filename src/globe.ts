@@ -33,7 +33,7 @@ export interface GlobeControls {
     setZoom: (distance: number) => void;
     getZoom: () => number;
     setAutoRotate: (enabled: boolean) => void;
-    setPosition: (x: number, y: number) => void;
+    movePosition: (dx: number, dy: number) => void;
     resetPosition: () => void;
 }
 
@@ -286,12 +286,11 @@ export function createGlobeScene(
         setAutoRotate(enabled: boolean) {
             autoRotate = enabled;
         },
-        setPosition(x: number, y: number) {
-            // Convert normalized (0-1) to 3D space coords
-            // Webcam coords: 0,0 = top-left; 0.5,0.5 = center
+        movePosition(dx: number, dy: number) {
+            // Move globe by delta (normalized coords → 3D space)
             // Mirror X because webcam is mirrored
-            targetX = -(x - 0.5) * 5;
-            targetY = -(y - 0.5) * 5;
+            targetX += -dx * 5;
+            targetY += -dy * 5;
         },
         resetPosition() {
             targetX = 0;
