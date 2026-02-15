@@ -129,15 +129,16 @@ export function createHandTracker(
         const rawPinchDist = Math.hypot(thumbTip.x - indexTip.x, thumbTip.y - indexTip.y);
         const normalizedPinch = rawPinchDist / handSize;
 
-        // ✊ FIST: check FIRST — all fingers curled, thumb down
-        // In a fist, thumb and index are naturally close, so we must check this before pinch
-        if (fingersUp <= 1 && !thumbUp) {
+        // ✊ FIST: ALL 4 fingers curled (thumb position doesn't matter — 
+        // thumb wraps around fingers in a fist, so thumbUp is unreliable)
+        const allFingersCurled = !indexUp && !middleUp && !ringUp && !pinkyUp;
+        if (allFingersCurled) {
             return { gesture: 'fist', pinchDist: normalizedPinch };
         }
 
-        // 🤏 PINCH: thumb and index close together, BUT at least one must be extended
-        // This prevents fist from triggering pinch
-        if (normalizedPinch < 0.5 && (thumbUp || indexUp)) {
+        // 🤏 PINCH: thumb and index close (fist already ruled out above,
+        // so at least one finger is extended — this is a deliberate pinch)
+        if (normalizedPinch < 0.5) {
             return { gesture: 'pinch', pinchDist: normalizedPinch };
         }
 
