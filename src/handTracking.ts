@@ -47,7 +47,7 @@ export function createHandTracker(
     });
 
     hands.setOptions({
-        maxNumHands: 1,
+        maxNumHands: 2,
         modelComplexity: 1,
         minDetectionConfidence: 0.6,
         minTrackingConfidence: 0.5,
@@ -61,10 +61,14 @@ export function createHandTracker(
         ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 
         if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+            // Draw ALL detected hands
+            for (const handLandmarks of results.multiHandLandmarks) {
+                drawHandVisualization(ctx, handLandmarks, overlayCanvas.width, overlayCanvas.height);
+            }
+
+            // Use first hand for gesture control
             const landmarks = results.multiHandLandmarks[0];
             state.landmarks = landmarks;
-
-            drawHandVisualization(ctx, landmarks, overlayCanvas.width, overlayCanvas.height);
 
             const detected = detectGesture(landmarks);
             state.pinchDistance = detected.pinchDist;
