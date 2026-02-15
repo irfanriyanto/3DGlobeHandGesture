@@ -28,6 +28,7 @@ let isGestureActive = false;
 // Smoothed deltas
 let smoothRotX = 0;
 let smoothRotY = 0;
+let prevPinchDist: number | null = null;
 
 function showGlobe() {
   loadingScreen.classList.add('hidden');
@@ -95,8 +96,9 @@ function gestureControlLoop() {
 
   switch (state.gesture) {
     case 'open': {
-      // ✋ TANGAN TERBUKA → PUTAR GLOBE
+      // ✋ OPEN HAND → ROTATE GLOBE
       globeControls.setAutoRotate(false);
+      prevPinchDist = null; // reset pinch tracking
 
       if (palm && prevPalmX !== null && prevPalmY !== null) {
         const dx = palm.x - prevPalmX;
@@ -122,18 +124,20 @@ function gestureControlLoop() {
     }
 
     case 'pinch': {
-      // 🤏 PINCH → ZOOM IN/OUT
+      // 🤏 PINCH → ZOOM using pinch distance change
       globeControls.setAutoRotate(false);
 
-      if (palm && prevPalmY !== null) {
-        const dy = palm.y - prevPalmY;
-        if (Math.abs(dy) > 0.003) {
+      const currentPinchDist = state.pinchDistance;
+      if (prevPinchDist !== null) {
+        const delta = currentPinchDist - prevPinchDist;
+        // Fingers spreading apart (delta > 0) = zoom out (increase distance)
+        // Fingers closing (delta < 0) = zoom in (decrease distance)
+        if (Math.abs(delta) > 0.005) {
           const currentZoom = globeControls.getZoom();
-          // Tangan naik (dy negatif) = zoom in (distance berkurang)
-          // Tangan turun (dy positif) = zoom out (distance bertambah)
-          globeControls.setZoom(currentZoom + dy * 10);
+          globeControls.setZoom(currentZoom + delta * 15);
         }
       }
+      prevPinchDist = currentPinchDist;
 
       if (palm) {
         prevPalmX = palm.x;
@@ -144,12 +148,13 @@ function gestureControlLoop() {
     }
 
     case 'fist': {
-      // ✊ KEPAL → BERHENTI, AUTO ROTATE
+      // ✊ FIST → STOP, AUTO ROTATE
       globeControls.setAutoRotate(true);
       smoothRotX = 0;
       smoothRotY = 0;
       prevPalmX = null;
       prevPalmY = null;
+      prevPinchDist = null;
       isGestureActive = false;
       break;
     }
@@ -168,9 +173,20 @@ function gestureControlLoop() {
       }
       prevPalmX = null;
       prevPalmY = null;
+      prevPinchDist = null;
       break;
     }
   }
+
+  // Show detected gesture + pinch distance on status (debug)
+  const pd = state.pinchDistance.toFixed(2);
+  const gestureLabels: Record<string, string> = {
+    open: `✋ Open hand – Rotating`,
+    pinch: `🤏 Pinch (${pd}) – Zooming`,
+    fist: `✊ Fist – Stopped`,
+    none: `Waiting... (pinch: ${pd})`,
+  };
+  statusText.textContent = gestureLabels[state.gesture] || 'Hand tracking active';
 
   requestAnimationFrame(gestureControlLoop);
 }

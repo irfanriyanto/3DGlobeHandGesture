@@ -13,6 +13,7 @@ export interface HandState {
     gesture: GestureType;
     palmCenter: { x: number; y: number } | null;
     landmarks: NormalizedLandmark[] | null;
+    pinchDistance: number; // 0 = fully pinched, 1 = fully open
 }
 
 export interface HandTracker {
@@ -30,9 +31,14 @@ export function createHandTracker(
         gesture: 'none',
         palmCenter: null,
         landmarks: null,
+        pinchDistance: 1,
     };
 
     let mediaCamera: Camera | null = null;
+    // Gesture smoothing: require N consecutive frames of the same gesture
+    let gestureBuffer: GestureType = 'none';
+    let gestureCount = 0;
+    const GESTURE_THRESHOLD = 2; // frames required to confirm gesture switch
     const ctx = overlayCanvas.getContext('2d')!;
 
     const hands = new Hands({
@@ -60,7 +66,19 @@ export function createHandTracker(
 
             drawHandVisualization(ctx, landmarks, overlayCanvas.width, overlayCanvas.height);
 
-            state.gesture = detectGesture(landmarks);
+            const detected = detectGesture(landmarks);
+            state.pinchDistance = detected.pinchDist;
+
+            // Gesture smoothing: require consecutive frames to confirm switch
+            if (detected.gesture === gestureBuffer) {
+                gestureCount++;
+            } else {
+                gestureBuffer = detected.gesture;
+                gestureCount = 1;
+            }
+            if (gestureCount >= GESTURE_THRESHOLD) {
+                state.gesture = gestureBuffer;
+            }
 
             // Palm center
             const palmIndices = [0, 5, 9, 13, 17];
@@ -77,6 +95,7 @@ export function createHandTracker(
             state.gesture = 'none';
             state.palmCenter = null;
             state.landmarks = null;
+            state.pinchDistance = 1;
         }
     }
 
@@ -84,11 +103,16 @@ export function createHandTracker(
         return landmarks[tipIdx].y < landmarks[pipIdx].y;
     }
 
-    function detectGesture(landmarks: NormalizedLandmark[]): GestureType {
+    function detectGesture(landmarks: NormalizedLandmark[]): { gesture: GestureType; pinchDist: number } {
         const wrist = landmarks[0];
         const thumbTip = landmarks[4];
         const thumbIp = landmarks[3];
         const indexTip = landmarks[8];
+        const middleMcp = landmarks[9];
+
+        // Hand size: distance from wrist to middle finger base (for normalization)
+        const handSize = Math.hypot(wrist.x - middleMcp.x, wrist.y - middleMcp.y);
+        if (handSize < 0.01) return { gesture: 'none', pinchDist: 1 }; // hand too small/not detected
 
         // Check each finger
         const indexUp = isFingerExtended(landmarks, 8, 6);
@@ -101,27 +125,26 @@ export function createHandTracker(
 
         const fingersUp = [indexUp, middleUp, ringUp, pinkyUp].filter(Boolean).length;
 
-        // 🤏 PINCH: thumb tip and index tip are close together
-        const pinchDist = Math.hypot(
-            thumbTip.x - indexTip.x,
-            thumbTip.y - indexTip.y,
-            (thumbTip.z ?? 0) - (indexTip.z ?? 0)
-        );
-        if (pinchDist < 0.07) {
-            return 'pinch';
+        // Pinch distance normalized by hand size (0 = touching, ~1 = far apart)
+        const rawPinchDist = Math.hypot(thumbTip.x - indexTip.x, thumbTip.y - indexTip.y);
+        const normalizedPinch = rawPinchDist / handSize;
+
+        // 🤏 PINCH: normalized distance < 0.5 (very forgiving)
+        if (normalizedPinch < 0.5) {
+            return { gesture: 'pinch', pinchDist: normalizedPinch };
         }
 
         // ✊ FIST: 0-1 fingers extended, thumb also down
         if (fingersUp <= 1 && !thumbUp) {
-            return 'fist';
+            return { gesture: 'fist', pinchDist: normalizedPinch };
         }
 
         // ✋ OPEN: 3+ fingers extended
         if (fingersUp >= 3) {
-            return 'open';
+            return { gesture: 'open', pinchDist: normalizedPinch };
         }
 
-        return 'none';
+        return { gesture: 'none', pinchDist: normalizedPinch };
     }
 
     function drawHandVisualization(
